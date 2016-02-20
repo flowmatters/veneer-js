@@ -1,0 +1,20 @@
+{
+  "name": "veneer-js",
+  "version": "0.1.0",
+  "authors": [
+    {
+      "name": "Joel Rahman",
+      "email": "joel@flowmatters.com.au"
+    }
+  ],
+  "main": ["dist/veneer.js"],
+  "ignore": [
+    "src",
+    "test",
+    "Gruntfile.js",
+    "**/.*"
+  ],
+  "dependencies": {},
+  "devDependencies": {
+  }
+}
