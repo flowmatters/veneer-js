@@ -348,7 +348,7 @@ var v;
       for(var col in lhsE) {
         if(col.toLowerCase()==='date'){ continue;}
         var newCol = (renames&&renames[col]) ? renames[col] : col;
-        newE[newCol] = lhsE[col]*factors[col];
+        newE[newCol] = lhsE[col]*(factors[col]||factors.default||factors);
       }
       result.push(newE);
     }
