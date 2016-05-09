@@ -73,6 +73,7 @@ var v;
   };
 
   v.group_by = function(data,field,grouper) {
+    grouper = grouper || function(rows){return rows;};
     var result = [];
     data.forEach(function(d) {
       var key = d[field];
