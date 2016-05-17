@@ -73,15 +73,27 @@ var v;
   };
 
   v.group_by = function(data,field,grouper) {
+    var fields = field.split('.');
+    var lastField = fields[fields.length-1];
+    var retrieveFrom = function(d,fieldsRemaining){
+      if(fieldsRemaining===undefined){
+        fieldsRemaining = fields.slice();
+      }
+      if(fieldsRemaining.length===1){
+        return d[fieldsRemaining[0]];
+      }
+      return retrieveFrom(d[fieldsRemaining[0]],fieldsRemaining.slice(1));
+    };
+
     grouper = grouper || function(rows){return rows;};
     var result = [];
     data.forEach(function(d) {
-      var key = d[field];
-      var matchingRows = result.filter(function(r){return r[field]===key;});
+      var key = retrieveFrom(d);
+      var matchingRows = result.filter(function(r){return r[lastField]===key;});
       var theRow;
       if(matchingRows.length===0) {
         theRow = {};
-        theRow[field] = key;
+        theRow[lastField] = key;
         theRow.values = [];
         result.push(theRow);
       } else {
