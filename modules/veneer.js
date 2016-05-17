@@ -285,7 +285,17 @@ var v;
     return result;
   };
 
-  v.subtract = function(lhs,rhs) {
+  var initEntry = function(entry){
+    var result = {};
+    if(entry.date){
+      result.date = entry.date;
+    } else {
+      result.Date = entry.Date;
+    }
+    return result;
+  };
+
+  v.binOp = function(lhs,rhs,op){
     var result = [];
     var rhsTS = false;
     if(rhs.length) {
@@ -296,11 +306,11 @@ var v;
     for(var ts in lhs) {
       var lhsE = lhs[ts];
       var rhsE = rhsTS?rhs[ts]:rhs;
-      var newE = {};
-      v.assert(!rhsTS || (lhsE.date.getTime()===rhsE.date.getTime()));
-      newE.date = lhsE.date;
+      v.assert(!rhsTS || ((lhsE.date||lhsE.Date).getTime()===(rhsE.date||rhsE.Date).getTime()));
+
+      var newE = initEntry(lhsE);
       for(var col in lhsE) {
-        if(col==='date'){ continue;}
+        if((col==='date')||(col==='Date')){ continue;}
 
         newE[col] = lhsE[col]-(rhsTS?rhsE[col]:rhsE);
       }
@@ -310,24 +320,12 @@ var v;
     return result;
   };
 
+  v.subtract = function(lhs,rhs) {
+    return v.binOp(lhs,rhs,function(a,b){return a-b;});
+  };
+
   v.plus = function(lhs,rhs) {
-    var result = [];
-    v.assert(lhs.length === rhs.length);
-    for(var ts in lhs) {
-      var lhsE = lhs[ts];
-      var rhsE = rhs[ts];
-      var newE = {};
-      v.assert(lhsE.date.getTime()===rhsE.date.getTime());
-      newE.date = lhsE.date;
-      for(var col in lhsE) {
-        if(col==='date'){ continue;}
-
-        newE[col] = lhsE[col]+rhsE[col];
-      }
-      result.push(newE);
-    }
-
-    return result;
+    return v.binOp(lhs,rhs,function(a,b){return a+b;});
   };
 
   v.concentration = function(timeseries) {
