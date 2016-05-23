@@ -17,6 +17,60 @@ if(typeof String.prototype.startsWith !== 'function'){
   };
 }
 
+var arrayFunctions = {};
+arrayFunctions.min = function(vals){
+  return Math.min.apply(null, vals);
+};
+
+arrayFunctions.max = function(vals){
+  return Math.max.apply(null, vals);
+};
+
+arrayFunctions.mean = function(vals){
+  if(!vals.length){
+    return Number.NaN;
+  }
+
+  return arrayFunctions.sum(vals)/vals.length;
+};
+
+arrayFunctions.sum = function(vals){
+  return vals.reduce(function(a,b){return a+b;},0);
+};
+
+var tsFunctions = {};
+tsFunctions.toArray = function(ts){
+  if(ts.Events){
+    return ts.Events.map(function(e){return e.Value;});
+  } else if(ts.length){
+    return ts.map(function(e){return e.Value;});
+  }
+  return [];
+};
+
+tsFunctions.min = function(ts){
+  if(ts.Min){
+    return ts.Min;
+  }
+
+  return arrayFunctions.min(tsFunctions.toArray(ts));
+};
+
+tsFunctions.max = function(ts){
+  if(ts.Max){
+    return ts.Max;
+  }
+
+  return arrayFunctions.max(tsFunctions.toArray(ts));
+};
+
+tsFunctions.mean = function(ts){
+  if(ts.Mean){
+    return ts.Mean;
+  }
+
+  return arrayFunctions.mean(tsFunctions.toArray(ts));
+};
 
 var v;
 
@@ -327,6 +381,9 @@ var v;
   v.plus = function(lhs,rhs) {
     return v.binOp(lhs,rhs,function(a,b){return a+b;});
   };
+
+  v.array = arrayFunctions;
+  v.ts = tsFunctions;
 
   v.concentration = function(timeseries) {
     var result = [];
