@@ -366,7 +366,7 @@ var v;
       for(var col in lhsE) {
         if((col==='date')||(col==='Date')){ continue;}
 
-        newE[col] = lhsE[col]-(rhsTS?rhsE[col]:rhsE);
+        newE[col] = op(lhsE[col],(rhsTS?rhsE[col]:rhsE));
       }
       result.push(newE);
     }
@@ -496,7 +496,7 @@ var v;
   v.deciles = function(timeseries,deciles) {
     var arrays = {};
     for(var col in timeseries[0]){
-      if(col==='date'){
+      if((col==='date')||(col==='Date')){
         continue;
       }
       else{
