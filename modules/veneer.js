@@ -82,7 +82,7 @@ var v;
 	v.img_suffix = '';
 
 	v.data_url = function(resource) {
-		return v.prefix + resource + v.suffix;
+		return v.prefix + resource + v.suffix; // .replace(/\&/g,encodeURIComponent('&'))
 	};
 
 	v.img_url = function(resource) {
