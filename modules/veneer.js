@@ -72,6 +72,9 @@ tsFunctions.mean = function(ts){
   return arrayFunctions.mean(tsFunctions.toArray(ts));
 };
 
+tsFunctions.sum = function(ts){
+  return arrayFunctions.sum(tsFunctions.toArray(ts));
+};
 var v;
 
 (function(){
