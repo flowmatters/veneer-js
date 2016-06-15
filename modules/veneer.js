@@ -385,6 +385,10 @@ var v;
     return v.binOp(lhs,rhs,function(a,b){return a+b;});
   };
 
+  v.divide = function(lhs,rhs){
+    return v.binOp(lhs,rhs,function(a,b){return a/b;});
+  };
+
   v.array = arrayFunctions;
   v.ts = tsFunctions;
 
