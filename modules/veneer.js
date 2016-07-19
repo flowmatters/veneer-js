@@ -81,11 +81,14 @@ var v;
 	v = {};
 
 	v.prefix = '';
-	v.suffix = '';
+	v.suffix = {
+    json:'',
+    csv:''
+  };
 	v.img_suffix = '';
 
-	v.data_url = function(resource) {
-		return v.prefix + resource + v.suffix; // .replace(/\&/g,encodeURIComponent('&'))
+	v.data_url = function(resource,format) {
+		return v.prefix + resource + v.suffix[format||'json'];
 	};
 
 	v.img_url = function(resource) {
