@@ -133,6 +133,10 @@ var v;
 		return v.prefix + resource + v.img_suffix;
 	};
 
+  v.docUrl = function(resource){
+    return v.prefix + resource;
+  };
+
   v.tabulate_functions = function(functions,pattern,rowMatch,colMatch) {
     var rows = [];
     functions.forEach(function(f) {
