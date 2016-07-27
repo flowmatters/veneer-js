@@ -75,6 +75,44 @@ tsFunctions.mean = function(ts){
 tsFunctions.sum = function(ts){
   return arrayFunctions.sum(tsFunctions.toArray(ts));
 };
+
+tsFunctions.extractPeriod = function(ts,from,to){
+  return {
+    Events: ts.Events.filter(function(evt){
+      return (evt.Date>=from) && (evt.Date<=to);
+    })
+  };
+};
+
+tsFunctions.extractYear = function(ts,year){
+  return {
+    Events: ts.Events.filter(function(evt){
+      return evt.Date.getFullYear()===year;
+    })
+  };
+};
+
+tsFunctions.extractMonthAndYear = function(ts,month,year){
+  return {
+    Events: ts.Events.filter(function(evt){
+      return (evt.Date.getFullYear()===year) &&
+             (evt.Date.getMonth()===month);
+    })
+  };
+};
+
+tsFunctions.sumForPeriod = function(ts,from,to){
+  return tsFunctions.sum(tsFunctions.extractPeriod(ts,from,to));
+};
+
+tsFunctions.sumForYear = function(ts,year){
+  return tsFunctions.sum(tsFunctions.extractYear(ts,year));
+};
+
+tsFunctions.sumForMonthAndYear = function(ts,month,year){
+  return tsFunctions.sum(tsFunctions.extractMonthAndYear(ts,month,year));
+};
+
 var v;
 
 (function(){
@@ -94,6 +132,10 @@ var v;
 	v.img_url = function(resource) {
 		return v.prefix + resource + v.img_suffix;
 	};
+
+  v.docUrl = function(resource){
+    return v.prefix + resource;
+  };
 
   v.tabulate_functions = function(functions,pattern,rowMatch,colMatch) {
     var rows = [];
