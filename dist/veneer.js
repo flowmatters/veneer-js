@@ -2,7 +2,6 @@
 /*jshint -W089 */
 /*jshint -W121 */
 /*jshint camelcase:false */
-/*jshint maxcomplexity:11 */
 
 // Fix for Safari and any other browser missing endsWith
 if(typeof String.prototype.endsWith !== 'function'){
@@ -16,6 +15,43 @@ if(typeof String.prototype.startsWith !== 'function'){
     return this.indexOf(prefix) === 0;
   };
 }
+
+/*
+ * from http://stackoverflow.com/a/1885660
+ *
+ * destructively finds the intersection of
+ * two arrays in a simple fashion.
+ *
+ * PARAMS
+ *  a - first array, must already be sorted
+ *  b - second array, must already be sorted
+ *
+ * NOTES
+ *  State of input arrays is undefined when
+ *  the function returns.  They should be
+ *  (prolly) be dumped.
+ *
+ *  Should have O(n) operations, where n is
+ *    n = MIN(a.length, b.length)
+ */
+function intersection_destructive(a, b)
+{
+  var result = [];
+  while( a.length > 0 && b.length > 0 )
+  {
+     if      (a[0] < b[0] ){ a.shift(); }
+     else if (a[0] > b[0] ){ b.shift(); }
+     else /* they're equal */
+     {
+       result.push(a.shift());
+       b.shift();
+     }
+  }
+
+  return result;
+}
+
+var v;
 
 var arrayFunctions = {};
 arrayFunctions.min = function(vals){
@@ -101,6 +137,56 @@ tsFunctions.extractMonthAndYear = function(ts,month,year){
   };
 };
 
+tsFunctions._events = function(ts){
+  return ts.Events||ts;
+};
+
+tsFunctions.intersect = function(ts1,ts2){
+  var result = [
+    {
+      Events:[]
+    },
+    {
+      Events:[]
+    }
+  ];
+
+  var extractDate = function(evt){return evt.Date;};
+  var extractDates = function(ts){
+    return tsFunctions._events(ts).map(extractDate);
+  };
+
+  var intersectedIndex = intersection_destructive(extractDates(ts1),extractDates(ts2));
+  var i1 = -1, i2 = -1;
+
+  var findItemForDate = function(ts,date,startingI){
+    var events = tsFunctions._events(ts);
+    for(var i = (startingI+1);i<events.length;i++){
+      if(events[i].Date.getTime()===date.getTime()){
+        return i;
+      }
+    }
+    return null;
+  };
+
+  intersectedIndex.forEach(function(d){
+    // Will be a matching d in each of ts1 and ts2;
+    i1 = findItemForDate(ts1,d,i1);
+    result[0].Events.push({
+      Date:d,
+      Value:tsFunctions._events(ts1)[i1].Value
+    });
+
+    i2 = findItemForDate(ts2,d,i2);
+    result[1].Events.push({
+      Date:d,
+      Value:tsFunctions._events(ts2)[i2].Value
+    });
+  });
+
+  return result;
+};
+
 tsFunctions.sumForPeriod = function(ts,from,to){
   return tsFunctions.sum(tsFunctions.extractPeriod(ts,from,to));
 };
@@ -133,7 +219,18 @@ tsFunctions.cumulativeSum = function(ts){
   return result;
 };
 
-var v;
+tsFunctions.NSE = function(modTS,obsTS){
+    var intersected = tsFunctions.intersect(modTS,obsTS);
+    var mod = intersected[0];
+    var obs = intersected[1];
+    var delta = v.subtract(obs,mod);
+
+    var numerator = tsFunctions.sum(v.multiply(delta,delta));
+    var d = v.subtract(obs,tsFunctions.mean(obs));
+    var denominator = tsFunctions.sum(v.multiply(d,d));
+    return 1 - numerator/denominator;
+};
+tsFunctions.NSE.bivariate = true;
 
 (function(){
 	v = {};
@@ -418,6 +515,9 @@ var v;
   };
 
   v.binOp = function(lhs,rhs,op){
+    lhs = tsFunctions._events(lhs);
+    rhs = tsFunctions._events(rhs);
+
     var result = [];
     var rhsTS = false;
     if(rhs.length) {
@@ -448,6 +548,10 @@ var v;
 
   v.plus = function(lhs,rhs) {
     return v.binOp(lhs,rhs,function(a,b){return a+b;});
+  };
+
+  v.multiply = function(lhs,rhs){
+    return v.binOp(lhs,rhs,function(a,b){return a*b;});
   };
 
   v.divide = function(lhs,rhs){
