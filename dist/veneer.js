@@ -113,6 +113,26 @@ tsFunctions.sumForMonthAndYear = function(ts,month,year){
   return tsFunctions.sum(tsFunctions.extractMonthAndYear(ts,month,year));
 };
 
+tsFunctions.cumulativeSum = function(ts){
+  var hasEvents = ts.Events!==undefined;
+  var events = ts.Events || ts;
+  var sum = 0;
+  var result = events.map(function(evt){
+    sum += evt.Value;
+    return {
+      Date:evt.Date,
+      Value:sum
+    };
+  });
+
+  if(hasEvents){
+    return {
+      Events:result
+    };
+  }
+  return result;
+};
+
 var v;
 
 (function(){
